@@ -897,7 +897,6 @@ export class GeminiEnterpriseAdapter extends SiteAdapter {
       // 插入新内容
       const success = document.execCommand("insertText", false, content)
       if (!success) throw new Error("execCommand returned false")
-      return true
     } catch {
       // 降级方案: 直接操作 DOM
       let p = editor.querySelector("p")
@@ -907,19 +906,20 @@ export class GeminiEnterpriseAdapter extends SiteAdapter {
       }
 
       p.textContent = content
-
-      // 触发各种事件以通知 ProseMirror 更新
-      const inputEvent = new InputEvent("input", {
-        bubbles: true,
-        cancelable: true,
-        inputType: "insertText",
-        data: content,
-      })
-      editor.dispatchEvent(inputEvent)
-      editor.dispatchEvent(new Event("change", { bubbles: true }))
-      editor.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true }))
-      return true
     }
+
+    // 无论如何，都触发各种事件以通知 ProseMirror 更新
+    const inputEvent = new InputEvent("input", {
+      bubbles: true,
+      cancelable: true,
+      inputType: "insertText",
+      data: content,
+    })
+    editor.dispatchEvent(inputEvent)
+    editor.dispatchEvent(new Event("change", { bubbles: true }))
+    editor.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true }))
+
+    return true
   }
 
   // ==================== 滚动容器 ====================
