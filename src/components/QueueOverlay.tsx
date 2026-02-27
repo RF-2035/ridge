@@ -82,21 +82,7 @@ export const QueueOverlay: React.FC<QueueOverlayProps> = ({ adapter, dispatcher 
   // ==================== 位置计算 ====================
 
   const updatePosition = useCallback(() => {
-    const selectors = adapter.getTextareaSelectors()
-    let inputEl: Element | null = null
-
-    for (const sel of selectors) {
-      const elements = document.querySelectorAll(sel)
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements[i] as HTMLElement
-        const r = el.getBoundingClientRect()
-        if (r.width > 0 && r.height > 0) {
-          inputEl = el
-          break
-        }
-      }
-      if (inputEl) break
-    }
+    const inputEl = adapter.getTextareaElement()
 
     if (!inputEl) {
       setPosition(null)
@@ -137,14 +123,7 @@ export const QueueOverlay: React.FC<QueueOverlayProps> = ({ adapter, dispatcher 
     let targetEl: Element | null = null
 
     const initObserver = () => {
-      const selectors = adapter.getTextareaSelectors()
-      for (const sel of selectors) {
-        const el = document.querySelector(sel)
-        if (el) {
-          targetEl = el
-          break
-        }
-      }
+      targetEl = adapter.getTextareaElement()
 
       if (targetEl) {
         observer = new ResizeObserver(() => {
