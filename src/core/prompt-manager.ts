@@ -293,6 +293,11 @@ export class PromptManager {
         return true
       }
 
+      // 初始内容不再存在于编辑器中（可能被占位文字替换，如 Gemini Enterprise 的"接着提问"）
+      if (hadContent && !currentContent.includes(initialContent.trim())) {
+        return true
+      }
+
       if (buttonState.clicked && submitSelectors.length > 0) {
         const currentButton = this.findBestSubmitButton(submitSelectors, currentEditor)
 
@@ -317,6 +322,12 @@ export class PromptManager {
     const editor = this.adapter.getTextareaElement() || this.adapter.findTextarea()
     const initialContent = this.getEditorContent(editor)
 
+    // 安全检查：如果编辑器为空，不执行提交（防止误触语音按钮等非发送控件）
+    const trimmedContent = initialContent.replace(/[\u200B\u200C\u200D\uFEFF]/g, "").trim()
+    if (!trimmedContent) {
+      return false
+    }
+
     let triggered = false
     let clickedButton: HTMLElement | null = null
     let initialButton: HTMLElement | null = null
@@ -328,7 +339,13 @@ export class PromptManager {
 
       let submitButton = initialButton
       if (initialButtonWasDisabled) {
-        const enabledButton = await this.waitForEnabledSubmitButton(submitSelectors, editor)
+        // 如果按钮完全不存在（null），使用更长超时等待 UI 切换（如语音→发送）
+        const waitTimeout = initialButton === null ? 2000 : 500
+        const enabledButton = await this.waitForEnabledSubmitButton(
+          submitSelectors,
+          editor,
+          waitTimeout,
+        )
         if (enabledButton) {
           submitButton = enabledButton
           initialButton = enabledButton
