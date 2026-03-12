@@ -1,12 +1,8 @@
 /**
- * 会话导出工具
+ * 会话导出工具 (Simplified)
  *
- * 支持导出为 Markdown、JSON、TXT 格式
  * 包含强大的 HTML 转 Markdown 功能
  */
-
-import { t } from "~utils/i18n"
-import { showToast } from "~utils/toast"
 
 // 使用 String.fromCodePoint 在运行时生成 emoji
 // 避免构建工具将 Unicode 转义序列转换为 UTF-16 代理对字符串
@@ -28,8 +24,6 @@ export interface ExportMetadata {
   customUserName?: string
   customModelName?: string
 }
-
-export type ExportFormat = "markdown" | "json" | "txt" | "clipboard"
 
 // ==================== HTML 转 Markdown ====================
 
@@ -211,16 +205,16 @@ export function htmlToMarkdown(el: Element): string {
           return `\n###### ${children}\n`
         case "strong":
         case "b":
-          return `**${children}**`
+          return ` **${children}** `
         case "em":
         case "i":
-          return `*${children}*`
+          return ` *${children}* `
         case "a":
           return `[${children}](${(element as HTMLAnchorElement).href || ""})`
         case "li":
           return `- ${children}\n`
         case "p":
-          return `${children}\n\n`
+          return `\n${children.trim()}\n`
         case "br":
           return "\n"
         case "ul":
@@ -237,23 +231,14 @@ export function htmlToMarkdown(el: Element): string {
       }
     } catch (err) {
       console.error("Error processing node in htmlToMarkdown:", err)
-      // 降级为纯文本，避免单个节点异常导致内容被静默丢弃
       return node.textContent || ""
     }
   }
 
-  return processNode(el).trim()
+  return processNode(el).replace(/\n{3,}/g, "\n\n").trim()
 }
 
-// ==================== 格式化函数 ====================
-
-/**
- * 为 UTF-8 文本添加 BOM，提升 Windows 记事本等工具的编码识别
- */
-export function ensureUtf8Bom(content: string): string {
-  if (!content) return "\ufeff"
-  return content.startsWith("\ufeff") ? content : `\ufeff${content}`
-}
+// ==================== 格式化 ====================
 
 /**
  * 格式化为 Markdown
@@ -261,132 +246,35 @@ export function ensureUtf8Bom(content: string): string {
 export function formatToMarkdown(metadata: ExportMetadata, messages: ExportMessage[]): string {
   const lines: string[] = []
 
-  // 元数据头
-  lines.push(`# ${metadata.title}`)
+  // 元数据
+  lines.push(`## ${EMOJI_EXPORT} Export Meta`)
+  lines.push(`- **Title**: ${metadata.title}`)
+  lines.push(`- **Time**: ${metadata.exportTime}`)
+  lines.push(`- **Source**: ${metadata.source}`)
+  lines.push(`- **URL**: ${metadata.url}`)
   lines.push("")
   lines.push("---")
-  lines.push(`## ${EMOJI_EXPORT} ${t("exportMetaTitle")}`)
-  lines.push(`- **${t("exportMetaConvTitle")}**: ${metadata.title}`)
-  lines.push(`- **${t("exportMetaTime")}**: ${metadata.exportTime}`)
-  lines.push(`- **${t("exportMetaSource")}**: ${metadata.source}`)
-  lines.push(`- **${t("exportMetaUrl")}**: ${metadata.url}`)
-  lines.push("---")
   lines.push("")
 
-  // 对话内容
+  // 会话内容
   messages.forEach((msg) => {
     if (msg.role === "user") {
-      const userLabel = metadata.customUserName || t("exportUserLabel")
-      lines.push(`## ${EMOJI_USER} ${userLabel}`)
+      const userLabel = metadata.customUserName || "User"
+      lines.push(`### ${EMOJI_USER} ${userLabel}`)
       lines.push("")
       lines.push(msg.content)
-      lines.push("")
-      lines.push("---")
-      lines.push("")
     } else {
-      const modelLabel = metadata.customModelName || metadata.source
-      lines.push(`## ${EMOJI_ASSISTANT} ${modelLabel}`)
+      const assistantLabel = metadata.customModelName || "Assistant"
+      lines.push(`### ${EMOJI_ASSISTANT} ${assistantLabel}`)
       lines.push("")
       lines.push(msg.content)
-      lines.push("")
-      lines.push("---")
-      lines.push("")
     }
-  })
-
-  return lines.join("\n")
-}
-
-/**
- * 格式化为 JSON
- */
-export function formatToJSON(metadata: ExportMetadata, messages: ExportMessage[]): string {
-  const data = {
-    metadata: {
-      title: metadata.title,
-      id: metadata.id,
-      url: metadata.url,
-      exportTime: metadata.exportTime,
-      source: metadata.source,
-    },
-    messages: messages.map((msg) => ({
-      role: msg.role,
-      content: msg.content,
-    })),
-  }
-  return JSON.stringify(data, null, 2)
-}
-
-/**
- * 格式化为 TXT
- */
-export function formatToTXT(metadata: ExportMetadata, messages: ExportMessage[]): string {
-  const lines: string[] = []
-
-  lines.push(`${t("exportMetaConvTitle")}: ${metadata.title}`)
-  lines.push(`${t("exportMetaTime")}: ${metadata.exportTime}`)
-  lines.push(`${t("exportMetaSource")}: ${metadata.source}`)
-  lines.push(`${t("exportMetaUrl")}: ${metadata.url}`)
-  lines.push("")
-  lines.push("=".repeat(50))
-  lines.push("")
-
-  messages.forEach((msg) => {
-    if (msg.role === "user") {
-      const userLabel = metadata.customUserName || t("exportUserLabel")
-      lines.push(`[${userLabel}]`)
-    } else {
-      const modelLabel = metadata.customModelName || metadata.source
-      lines.push(`[${modelLabel}]`)
-    }
-    lines.push(msg.content)
     lines.push("")
-    lines.push("-".repeat(50))
+    lines.push("---")
     lines.push("")
   })
 
   return lines.join("\n")
-}
-
-// ==================== 文件操作 ====================
-
-/**
- * 下载文件
- * 使用 Blob + createObjectURL 直接下载到默认下载目录
- */
-export async function downloadFile(
-  content: string,
-  filename: string,
-  mimeType: string = "text/plain;charset=utf-8",
-): Promise<boolean> {
-  try {
-    const blob = new Blob([content], { type: mimeType })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = filename
-    a.click()
-    URL.revokeObjectURL(url)
-    return true
-  } catch (err: unknown) {
-    console.error("[Exporter] Download failed:", err)
-    const errorMessage = err instanceof Error ? err.message : String(err)
-    showToast("下载失败: " + errorMessage)
-    return false
-  }
-}
-
-/**
- * 复制到剪贴板
- */
-export async function copyToClipboard(content: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(content)
-    return true
-  } catch (e) {
-    console.error("[Exporter] Failed to copy:", e)
-    return false
-  }
 }
 
 /**
@@ -399,7 +287,7 @@ export function createExportMetadata(
   options?: { customUserName?: string; customModelName?: string },
 ): ExportMetadata {
   return {
-    title: title || t("exportUntitled"),
+    title: title || "Untitled",
     id,
     url: window.location.href,
     exportTime: new Date().toLocaleString(),

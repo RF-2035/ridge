@@ -1,9 +1,5 @@
-import cssText from "data-text:~style.css"
-import conversationsCssText from "data-text:~styles/conversations.css"
-import settingsCssText from "data-text:~styles/settings.css"
 import type { PlasmoCSConfig, PlasmoMountShadowHost } from "plasmo"
 import React from "react"
-
 import { App } from "~components/App"
 
 export const config: PlasmoCSConfig = {
@@ -22,13 +18,6 @@ export const config: PlasmoCSConfig = {
   ],
 }
 
-export const getStyle = () => {
-  const style = document.createElement("style")
-  // 合并所有 CSS 样式
-  style.textContent = cssText + "\n" + conversationsCssText + "\n" + settingsCssText
-  return style
-}
-
 /**
  * 自定义 Shadow Host 挂载位置
  *
@@ -38,14 +27,8 @@ export const getStyle = () => {
  */
 export const mountShadowHost: PlasmoMountShadowHost = ({
   shadowHost,
-  anchor: _anchor,
-  mountState: _mountState,
 }) => {
   const hostname = window.location.hostname
-  if (hostname.includes("chatglm.cn")) {
-    shadowHost.classList.add("gh-site-chatglm")
-  }
-  // ChatGPT、Claude 和 Grok 都是 Next.js 应用，需要延迟挂载
   const needsDelayedMount =
     hostname.includes("chatgpt.com") ||
     hostname.includes("chat.openai.com") ||
@@ -60,28 +43,17 @@ export const mountShadowHost: PlasmoMountShadowHost = ({
   }
 
   if (needsDelayedMount) {
-    // Next.js 站点需要延迟挂载，等待 React Hydration 完成
-    // 使用多次延迟尝试，确保挂载成功
     const delays = [500, 1000, 2000, 3000]
-    delays.forEach((delay) => {
-      setTimeout(doMount, delay)
-    })
+    delays.forEach((delay) => setTimeout(doMount, delay))
 
-    // 使用 MutationObserver 持续监控，如果被移除则重新挂载
     const observer = new MutationObserver(() => {
-      if (!shadowHost.parentElement) {
-        doMount()
-      }
+      if (!shadowHost.parentElement) doMount()
     })
     observer.observe(document.body, { childList: true, subtree: false })
   } else {
-    // 其他站点直接挂载到 body
     doMount()
   }
 }
 
-const PlasmoApp = () => {
-  return <App />
-}
-
+const PlasmoApp = () => <App />
 export default PlasmoApp
