@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "Ophel Atlas - AI Chat Organizer & Navigator",
+    "message": "Ophel Lite - Copy AI Conversation as Markdown",
     "description": "Extension name"
   },
   "extensionDescription": {
-    "message": "Turn AI chats into readable, navigable knowledge. Use outlines, folders, and prompts to organize your workflow and stop scrolling.",
+    "message": "A lightweight extension to copy AI conversations to clipboard in Markdown format.",
     "description": "Extension description"
   }
 }
