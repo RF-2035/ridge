@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { getAdapter } from "~adapters/index"
 import { ConversationManager } from "~core/conversation-manager"
+import { t } from "~utils/i18n"
 
 export const App = () => {
   const [isCopied, setIsCopied] = useState(false)
@@ -33,7 +34,7 @@ export const App = () => {
       }}>
       <button
         onClick={handleCopyMarkdown}
-        title="Copy Markdown"
+        title={t("copyMarkdown")}
         style={{
           width: "48px",
           height: "48px",
