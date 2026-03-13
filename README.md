@@ -1,6 +1,14 @@
 # Ridge Atlas
 
-Strip down the [Ophel browser extension](https://github.com/urzeye/ophel) to serve a single purpose: exporting the current AI conversation to the clipboard in Markdown format, triggered by a floating button on supported AI chat sites.
+a fork of [urzeye/ophel](https://github.com/urzeye/ophel) focusing on simplicity and integrity. a Ridge of Ophel Atlas.
+
+## Features
+
+- [x] One-click export conversation history
+- [ ] Navigation panel
+- [ ] Automatic tab renaming
+
+## Installation
 
 **Firefox**
 
@@ -8,5 +16,26 @@ Strip down the [Ophel browser extension](https://github.com/urzeye/ophel) to ser
 
 **Chrome / Edge**
 
-- Extract `*-chrome.zip' from Releases to a folder
+- Extract `*-chrome.zip` from Releases to a folder
 - Extensions > Developer mode > Load unpacked > Select the folder
+
+## Supported Sites
+
+- [x] Gemini
+- [x] Gemini Enterprise
+- [x] Google AI Studio
+- [x] ChatGPT
+- [x] Grok
+- [x] Claude
+- [x] Doubao
+- [x] DeepSeek
+- [x] Kimi
+- [x] ChatGLM
+- [ ] Copilot
+- [ ] Google AI Mode
+- [ ] Perplexity
+
+## License
+
+this fork is licensed under [GNU GPLv3](./LICENSE).
+
