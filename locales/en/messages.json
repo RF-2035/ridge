@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "Ophel Lite - Copy AI Conversation as Markdown",
+    "message": "Ridge Atlas",
     "description": "Extension name"
   },
   "extensionDescription": {
-    "message": "A lightweight extension to copy AI conversations to clipboard in Markdown format.",
+    "message": "Ridge AI conversations into markdown files.",
     "description": "Extension description"
   }
 }

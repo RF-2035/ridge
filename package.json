@@ -1,8 +1,8 @@
 {
-  "name": "ophel-lite",
-  "displayName": "Ophel Lite - Copy AI Conversation as Markdown",
+  "name": "ridge-atlas",
+  "displayName": "Ridge Atlas",
   "version": "1.0.0",
-  "description": "A lightweight extension to copy AI conversations to clipboard in Markdown format.",
+  "description": "Ridge AI conversations into markdown files.",
   "author": "urzeye",
   "license": "GPL-3.0-only",
   "packageManager": "pnpm@9.15.0",
