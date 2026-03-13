@@ -1,9 +1,0 @@
-.git
-node_modules
-.plasmo
-build
-dist
-coverage
-.tmp
-*.tsbuildinfo
-tsconfig.tsbuildinfo

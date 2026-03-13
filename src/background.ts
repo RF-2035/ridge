@@ -1,2 +1,0 @@
-// background.ts (Simplified)
-export {}
